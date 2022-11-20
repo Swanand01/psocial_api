@@ -2,6 +2,6 @@
 # exit on error
 set -o errexit
 
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
-python manage.py migrate
+python3 manage.py migrate
