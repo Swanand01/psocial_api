@@ -11,9 +11,22 @@ from core.models import Comment, Post
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_posts(request):
+    user = request.user
     posts = Post.objects.all()
-    serializer = PostSerializer(posts, many=True)
-    return Response({"posts": serializer.data})
+
+    posts_arr = []
+    for post in posts:
+        serializer = PostSerializer(post)
+        is_upvoted = user in post.upvotes.all()
+        is_downvoted = user in post.downvotes.all()
+        posts_arr.append(
+            {
+                **serializer.data,
+                "is_upvoted": is_upvoted,
+                "is_downvoted": is_downvoted
+            }
+        )
+    return Response({"posts": posts_arr})
 
 
 @api_view(["POST"])
