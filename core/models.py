@@ -35,6 +35,9 @@ class Post(models.Model):
     def get_comment_count(self):
         return self.comments.all().count()
 
+    def get_is_upvoted(self):
+        return
+
 
 class Comment(models.Model):
     user = models.ForeignKey(

@@ -45,8 +45,12 @@ def get_post(request, post_id):
     except:
         return Response({"MSG": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
 
+    user = request.user
+    is_upvoted = user in post.upvotes.all()
+    is_downvoted = user in post.downvotes.all()
+
     serializer = PostSerializer(post)
-    return Response(serializer.data)
+    return Response({**serializer.data, "is_upvoted": is_upvoted, "is_downvoted": is_downvoted})
 
 
 @ api_view(["POST"])
@@ -104,12 +108,13 @@ def upvote_post(request, post_id):
 
     if user in post.upvotes.all():
         post.upvotes.remove(user)
+        return Response({"MSG": "Post upvote removed."}, status.HTTP_200_OK)
+
     else:
         if user in post.downvotes.all():
             post.downvotes.remove(user)
         post.upvotes.add(user)
-
-    return Response({"MSG": "Post upvoted successfully"}, status.HTTP_200_OK)
+        return Response({"MSG": "Post upvoted successfully."}, status.HTTP_200_OK)
 
 
 @ api_view(["POST"])
@@ -124,12 +129,13 @@ def downvote_post(request, post_id):
 
     if user in post.downvotes.all():
         post.downvotes.remove(user)
+        return Response({"MSG": "Post downvote removed."}, status.HTTP_200_OK)
+
     else:
         if user in post.upvotes.all():
             post.upvotes.remove(user)
         post.downvotes.add(user)
-
-    return Response({"MSG": "Post downvoted successfully"}, status.HTTP_200_OK)
+        return Response({"MSG": "Post downvoted successfully."}, status.HTTP_200_OK)
 
 
 @ api_view(["GET"])
