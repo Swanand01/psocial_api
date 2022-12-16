@@ -6,4 +6,3 @@ pip3 install -r requirements.txt
 
 python manage.py collectstatic --no-input
 python3 manage.py migrate
-python3 manage.py createsuperuser --user_name superuser --email superuser@psocial.com --noinput
