@@ -1,5 +1,3 @@
-from accounts.serializers import CustomUserSerializer
-from core.serializers import CommentSerializer, PostSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,12 +5,16 @@ from rest_framework import status
 
 from core.models import Comment, Post
 
+from core.serializers import CommentSerializer, PostSerializer
+from accounts.serializers import CustomUserSerializer
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_all_posts(request):
     user = request.user
-    posts = Post.objects.all()
+    posts = Post.objects.filter(
+        tags__in=user.tags.all()).distinct().order_by('-pub_date')
 
     posts_arr = []
     for post in posts:
@@ -34,12 +36,14 @@ def get_all_posts(request):
 def create_post(request):
     user = request.user
     content = request.data.get("content")
+    tags = request.data.get("tags")
 
     user_serializer = CustomUserSerializer(user, many=False)
 
     data = {
         "user": user_serializer.data,
-        "content": content
+        "content": content,
+        "tags": tags
     }
     post_serializer = PostSerializer(data=data, context={"request": request})
 
@@ -63,7 +67,13 @@ def get_post(request, post_id):
     is_downvoted = user in post.downvotes.all()
 
     serializer = PostSerializer(post)
-    return Response({**serializer.data, "is_upvoted": is_upvoted, "is_downvoted": is_downvoted})
+    return Response(
+        {
+            **serializer.data,
+            "is_upvoted": is_upvoted,
+            "is_downvoted": is_downvoted,
+            "is_owner": request.user == post.user
+        })
 
 
 @ api_view(["POST"])
@@ -71,12 +81,14 @@ def get_post(request, post_id):
 def update_post(request, post_id):
     user = request.user
     content = request.data.get("content")
+    tags = request.data.get("tags")
 
     user_serializer = CustomUserSerializer(user, many=False)
 
     data = {
         "user": user_serializer.data,
-        "content": content
+        "content": content,
+        "tags": tags
     }
     try:
         post = Post.objects.get(id=post_id)

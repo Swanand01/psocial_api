@@ -6,11 +6,3 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Interest(models.Model):
-    name = models.TextField()
-    tags = models.ManyToManyField(Tag)
-
-    def __str__(self):
-        return self.name

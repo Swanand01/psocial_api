@@ -4,7 +4,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from tags.models import Interest
+from tags.models import Tag
 
 
 class CustomUserManager(BaseUserManager):
@@ -61,7 +61,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    interests = models.ManyToManyField(Interest)
+    tags = models.ManyToManyField(Tag)
     USERNAME_FIELD = 'user_name'
     REQUIRED_FIELDS = ['email']
 

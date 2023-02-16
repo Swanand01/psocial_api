@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from tags.models import Tag
 
 
 class Post(models.Model):
@@ -23,6 +24,7 @@ class Post(models.Model):
         blank=True,
         related_name="post_downvotes"
     )
+    tags = models.ManyToManyField(Tag, blank=True, related_name="posts")
 
     def get_upvote_count(self):
         """Returns the number of upvotes on the post"""
@@ -37,6 +39,9 @@ class Post(models.Model):
 
     def get_is_upvoted(self):
         return
+
+    def __str__(self):
+        return self.content[:30] + " ..."
 
 
 class Comment(models.Model):
